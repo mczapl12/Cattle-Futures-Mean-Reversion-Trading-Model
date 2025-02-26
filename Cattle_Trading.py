@@ -26,7 +26,7 @@ def download_and_extract_cot_data(start_year, end_year, save_dir):
                 with open(zip_path, "wb") as f:
                     f.write(response.content)
                 
-                # Extract the ZIP (but let's see what's inside first)
+                # Extract the ZIP 
                 with zipfile.ZipFile(zip_path, "r") as z:
                     file_list = z.namelist()
                     print(f"Contents of {year}.zip: {file_list}")  # Debugging
@@ -55,7 +55,7 @@ def download_and_extract_cot_data(start_year, end_year, save_dir):
 def process_data_for_all_years(save_dir, start_year, end_year):
     all_data = []
 
-    # Let's see how many text files are now in the folder
+    # See how many text files are now in the folder
     extracted_files = [f for f in os.listdir(save_dir) if f.endswith(".txt")]
     print(f"\nExtracted text files (count): {len(extracted_files)}")
     for name in extracted_files[:10]:
@@ -84,7 +84,7 @@ def process_data_for_all_years(save_dir, start_year, end_year):
 start_year = 2010
 end_year   = datetime.now().year
 
-# 2A) Download data if not done yet
+# 2A) Download data 
 download_and_extract_cot_data(start_year, end_year, SAVE_DIR)
 
 # 2B) Combine all data into one DataFrame
@@ -110,11 +110,11 @@ else:
 print("\nColumns in combined data:")
 print(cot_data.columns)
 
-# Just  LIVE CATTLE
+# Just LIVE CATTLE
 commodity_name = "LIVE CATTLE - CHICAGO MERCANTILE EXCHANGE"
 print(f"\nFiltering for commodity: {commodity_name}")
 
-# 2C) Filter for Live Cattle rows & explicitly copy
+# 2C) Filter for Live Cattle rows & copy
 temp_df = cot_data[cot_data['Market_and_Exchange_Names'].str.contains(commodity_name, na=False)]
 cattle_df = temp_df.copy()  # avoid SettingWithCopyWarning
 
@@ -130,7 +130,7 @@ if cattle_df.empty:
 # 3) Compute Z-Scores for MM Long & Short
 #########################################
 
-# A) Identify the date column and parse it
+# A) Identify date column and parse it
 if 'As_of_Date_In_Form_YYMMDD' in cattle_df.columns:
     date_col = 'As_of_Date_In_Form_YYMMDD'
     cattle_df['Date'] = pd.to_datetime(
@@ -171,11 +171,7 @@ for col in [long_col, short_col]:
         print(f"Missing column '{col}'. Exiting.")
         exit()
 
-# 3B) Rolling window
-# Option A: smaller window (4)
-# window_size = 4
 
-# Option B: keep 26 but use min_periods=1
 window_size = 26
 
 def compute_zscore(series, window=26):
@@ -205,7 +201,7 @@ cattle_df.set_index('Date', inplace=True)
 # 4B) Filter to Last 14 Months & Plot
 #########################################
 
-# 4B-1) Find the newest date
+# 4B-1) Find newest date
 max_date = cattle_df.index.max()
 print("Most recent date in dataset:", max_date)
 
